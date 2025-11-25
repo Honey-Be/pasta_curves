@@ -479,7 +479,7 @@ impl ff::Field for Fp {
     const ZERO: Self = Self::zero();
     const ONE: Self = Self::one();
 
-    fn random(mut rng: impl RngCore) -> Self {
+    fn random<R: RngCore + ?Sized>(rng: &mut R) -> Self {
         Self::from_u512([
             rng.next_u64(),
             rng.next_u64(),
@@ -557,6 +557,20 @@ impl ff::Field for Fp {
             }
         }
         res
+    }
+    
+    fn try_from_rng<R: rand::TryRngCore + ?Sized>(rng: &mut R) -> Result<Self, R::Error> {
+        let limbs = [
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+            rng.try_next_u64()?,
+        ];
+        Ok(Self::from_u512(limbs))
     }
 }
 
